@@ -3,7 +3,7 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<title>Go Coverage Report</title>
+		<title>go-ref: Go Coverage Report</title>
 		<style>
 			body {
 				background: black;
@@ -55,26 +55,93 @@
 			<div id="nav">
 				<select id="files">
 				
+				<option value="file0">github.com/tys-muta/go-ref/pointer.go (100.0%)</option>
+				
+				<option value="file1">github.com/tys-muta/go-ref/struct.go (0.0%)</option>
+				
 				</select>
 			</div>
 			<div id="legend">
 				<span>not tracked</span>
 			
-				<span class="cov0">no coverage</span>
-				<span class="cov1">low coverage</span>
-				<span class="cov2">*</span>
-				<span class="cov3">*</span>
-				<span class="cov4">*</span>
-				<span class="cov5">*</span>
-				<span class="cov6">*</span>
-				<span class="cov7">*</span>
-				<span class="cov8">*</span>
-				<span class="cov9">*</span>
-				<span class="cov10">high coverage</span>
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
 			
 			</div>
 		</div>
 		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package ref
+
+func Ptr[T any](t T) *T <span class="cov8" title="1">{
+        return &amp;t
+}</span>
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package ref
+
+import (
+        "fmt"
+        "reflect"
+        "unicode"
+
+        "github.com/tys-muta/go-opt"
+        "github.com/tys-muta/go-ref/option"
+)
+
+type ScanHandle func(field reflect.StructField, value reflect.Value) error
+
+func ScanField(v interface{}, handle ScanHandle, options ...opt.Option) error <span class="cov0" title="0">{
+        o := &amp;option.StructOptions{}
+        if err := opt.Reflect(o, options...); err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to reflect: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">e := reflect.Indirect(reflect.ValueOf(v))
+        t := e.Type()
+        for i := 0; i &lt; e.NumField(); i++ </span><span class="cov0" title="0">{
+                field := t.Field(i)
+                value := e.Field(i)
+                if !isPublic(field.Name) &amp;&amp; !bool(o.PrivateField) </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+                <span class="cov0" title="0">if err := handle(field, value); err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("failed to handle: %w", err)
+                }</span>
+        }
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+func ToMap(v interface{}, options ...opt.Option) (map[string]interface{}, error) <span class="cov0" title="0">{
+        dst := map[string]interface{}{}
+
+        if err := ScanField(v, func(field reflect.StructField, value reflect.Value) error </span><span class="cov0" title="0">{
+                if value.Kind() == reflect.Ptr </span><span class="cov0" title="0">{
+                        if !value.IsNil() </span><span class="cov0" title="0">{
+                                dst[field.Name] = value.Interface()
+                        }</span> else<span class="cov0" title="0"> {
+                                dst[field.Name] = nil
+                        }</span>
+                } else<span class="cov0" title="0"> {
+                        dst[field.Name] = value
+                }</span>
+                <span class="cov0" title="0">return nil</span>
+        }, options...); err != nil <span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to scan field: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">return dst, nil</span>
+}
+
+func isPublic(fieldName string) bool <span class="cov0" title="0">{
+        if fieldName == "" </span><span class="cov0" title="0">{
+                return false
+        }</span>
+        <span class="cov0" title="0">r := rune(fieldName[0])
+        return unicode.IsUpper(r)</span>
+}
+</pre>
 		
 		</div>
 	</body>
