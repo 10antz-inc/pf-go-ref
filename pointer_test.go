@@ -7,7 +7,7 @@ import (
 
 func TestPtr(t *testing.T) {
 	foo := "test"
-	bar := Ptr[string](foo)
+	bar := Ptr(foo)
 
 	if foo != *bar {
 		t.Errorf("not match value. got: %s, want: %s", *bar, foo)
