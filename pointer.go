@@ -1,5 +1,6 @@
 package ref
 
-func Ptr[T any](t T) *T {
-	return &t
+// Ptr は v のポインタを返す
+func Ptr[T any](v T) *T {
+	return &v
 }

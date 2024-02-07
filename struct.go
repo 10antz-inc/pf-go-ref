@@ -5,16 +5,16 @@ import (
 	"reflect"
 	"unicode"
 
-	"github.com/tys-muta/go-opt"
 	"github.com/tys-muta/go-ref/option"
 )
 
 type ScanHandle func(field reflect.StructField, value reflect.Value) error
 
-func ScanField(v interface{}, handle ScanHandle, options ...opt.Option) error {
-	o := &option.StructOptions{}
-	if err := opt.Reflect(o, options...); err != nil {
-		return fmt.Errorf("failed to reflect: %w", err)
+// ScanField は v のフィールドをスキャンして handle に渡す
+func ScanField(v any, handle ScanHandle, options ...option.ScanOption) error {
+	o := option.Scan{}
+	for _, opt := range options {
+		opt(&o)
 	}
 
 	e := reflect.Indirect(reflect.ValueOf(v))
@@ -33,8 +33,9 @@ func ScanField(v interface{}, handle ScanHandle, options ...opt.Option) error {
 	return nil
 }
 
-func ToMap(v interface{}, options ...opt.Option) (map[string]interface{}, error) {
-	dst := map[string]interface{}{}
+// ToMap は v のフィールドをマップにして返す
+func ToMap(v any, options ...option.ScanOption) (map[string]any, error) {
+	dst := map[string]any{}
 
 	if err := ScanField(v, func(field reflect.StructField, value reflect.Value) error {
 		if value.Kind() == reflect.Ptr {
